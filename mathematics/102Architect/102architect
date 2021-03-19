@@ -1,0 +1,93 @@
+#!/usr/bin/env python3
+
+from sys import argv
+import math
+import sys
+
+def calc_rows(matrice1):
+    nb_rows = 0
+    for i in matrice1:
+        nb_rows += 1
+    return (nb_rows)
+
+def calc_columns(matrice2):
+    nb_cols = 0
+    for j in matrice2[0]:
+        nb_cols += 1
+    return (nb_cols)
+
+def calc_res(matrice1, matrice2, i, j):
+    cpt = calc_columns(matrice1)
+    res = 0
+
+    for k in range(cpt):
+        nb1 = matrice1[i][k]
+        nb2 = matrice2[k][j]
+        temp = nb1 * nb2
+        res = res + temp
+    return (res)
+
+def mul_matrice(matrice1, matrice2):
+    rows = calc_rows(matrice1)
+    cols = calc_columns(matrice2)
+    res = list()
+
+    for i in range(rows):
+        res.append(list())
+        for j in range(cols):
+            res[i].append(0)
+            res[i][j] = calc_res(matrice1, matrice2, i, j)
+    return(res)
+
+def mul_matrice_col(matrice1, matrice2):
+    res = [0.00, 0.00, 0.00]
+
+    for i in range(3):
+        for j in range(3):
+            res[i] += matrice1[j] * matrice2[i][j]
+    return (res)
+
+def print_operations(coordinates, argv, i):
+    if (argv[i] == "-t"):
+        print("Translation along vector ({:s}, {:s})".format(argv[i + 1], argv[i + 2]))
+    elif (argv[i] == "-z"):
+        print("Scaling by vectors", argv[i + 1], "and", argv[i + 2])
+    elif (argv[i] == "-r"):
+        print("Rotation by a", argv[i + 1], "degrees angle")
+    elif (argv[i] == "-s"):
+        print("Reflection over an axis with an inclination angle of", argv[i + 1], "degrees")
+
+def print_matrice(matrice):
+    print("{:.2f}    {:.2f}    {:.2f}".format(matrice[0][0], matrice[0][1], matrice[0][2]))
+    print("{:.2f}    {:.2f}    {:.2f}".format(matrice[1][0], matrice[1][1], matrice[1][2]))
+    print("{:.2f}    {:.2f}    {:.2f}".format(matrice[2][0], matrice[2][1], matrice[2][2]))
+
+def operations(coordinates, argv, i):
+    pi = 3.141592
+    matrice = [[ 1.00,  1.00,  1.00], [ 1.00,  1.00,  1.00], [ 1.00,  1.00,  1.00]]
+    if (argv[i] == "-t"):
+        matrice = [[1.00, 0.00, float(argv[i + 1])], [0.00, 1.00, float(argv[i + 2])], [0.00, 0.00, 1.00]]
+    elif (argv[i] == "-z"):
+        matrice = [[float(argv[i + 1]), 0.00, 0.00], [0.00, float(argv[i + 2]), 0.00], [0.00, 0.00, 1.00]]
+    elif (argv[i] == "-r"):
+        angle = float(argv[i + 1]) * pi / 180.00
+        matrice = [[math.cos(angle), -1.00 * math.sin(angle), 0.00], [math.sin(angle), math.cos(angle), 0.00], [0.00, 0.00, 1.00]]
+    elif (argv[i] == "-s"):
+        angle = float(argv[i + 1]) * pi / 180.00
+        matrice = [[math.cos(2.00 * angle), math.sin(2.00 * angle), 0.00], [math.sin(2.00 * angle), -1.00 * math.cos(2.00 * angle), 0.00], [0.00, 0.00, 1.00]]
+    return (matrice)
+
+try:
+    i = 3
+    coordinates = [float(argv[1]), float(argv[2]), 1.00]
+    for i in range(len(argv)):
+        print_operations(coordinates, argv, i)
+    matrice = operations(coordinates, argv, 3)
+    for j in range(4, len(argv)):
+        if (argv[j] == "-t" or argv[j] == "-z" or argv[j] == "-r" or argv[j] == "-s"):
+            matrice = mul_matrice(operations(coordinates, argv, j), matrice)
+    print_matrice(matrice)
+    result = mul_matrice_col(coordinates, matrice)
+    print("({:.2f}, {:.2f}) => ({:.2f}, {:.2f})".format(coordinates[0], coordinates[1], result[0], result[1]))
+except:
+    sys.exit(84)

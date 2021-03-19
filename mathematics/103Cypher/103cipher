@@ -1,0 +1,147 @@
+#!/usr/bin/env python3
+
+from sys import argv
+from math import *
+
+def take_key(key):
+    n = 1
+    while n**2 < len(key):
+        n += 1
+    matrix = []
+    i = 0
+    for j in range(0, n):
+        line = []
+        for k in range(0, n):
+            line.append(ord(key[i]) if i < len(key) else 0)
+            i += 1
+        matrix.append(line)
+    return matrix, n
+
+def take_mes(mes, n):
+    matrix = []
+    i = 0
+    while i < len(mes):
+        line = []
+        for j in range(0, n):
+            line.append(ord(mes[i]) if i < len(mes) else 0)
+            i += 1
+        matrix.append(line)
+    return matrix
+
+def dis_key(key, n, mode):
+    print("Key matrix:")
+    if mode == 0:
+        for i in range(0, len(key)):
+            for j in range(0, n):
+                print(key[i][j]) if j == n - 1 else print(key[i][j], end = '\t')
+    else:
+        for i in range(0, len(key)):
+            for j in range(0, n):
+                if key[i][j] == 0:
+                    print(0.0) if j == n - 1 else print(0.0, end = '\t')
+                else:
+                    print("{0:.3f}".format(key[i][j])) if j == n - 1 else print("{0:.3f}".format(key[i][j]), end = '\t')
+    return
+
+def dis_crypted(res, n):
+    print("\nEncrypted message:")
+    for i in range(0, len(res)):
+        for j in range(0, n):
+            print(res[i][j]) if i == len(res) - 1 and j == n - 1 else print(res[i][j], end = ' ')
+    return
+
+def matrix_mul(mes, key, n):
+    result = []
+    for i in range(0, len(mes)):
+        line = []
+        for j in range(0, n):
+            res = 0
+            for k in range(0, n):
+                res += mes[i][k] * key[k][j]
+            line.append(round(res))
+        result.append(line)
+    return result
+
+def inv_key(key, n):
+    if n == 1:
+        key[0][0] = 1 / key[0][0]
+    elif n == 2:
+        det = key[0][0] * key[1][1] - key[1][0] * key[0][1]
+        tmp = key[0][0]
+        key[0][0] = key[1][1]
+        key[1][1] = tmp
+        key[0][0] /= det
+        key[0][1] /= -det
+        key[1][0] /= -det
+        key[1][1] /= det
+    elif n == 3:
+        a = key[0][0]
+        b = key[0][1]
+        c = key[0][2]
+        d = key[1][0]
+        e = key[1][1]
+        f = key[1][2]
+        g = key[2][0]
+        h = key[2][1]
+        i = key[2][2]
+        det = a*e*i - a*f*h + b*f*g - b*d*i + c*d*h - c*e*g
+        key[0][0] = (e*i - f*h) / det
+        key[0][1] = (b*i - c*h) / -det
+        key[0][2] = (b*f - c*e) / det
+        key[1][0] = (d*i - f*g) / -det
+        key[1][1] = (a*i - c*g) / det
+        key[1][2] = (a*f - c*d) / -det
+        key[2][0] = (d*h - e*g) / det
+        key[2][1] = (a*h - b*g) / -det
+        key[2][2] = (a*e - b*d) / det
+    return key
+
+def take_crypted(mes, n):
+    res = []
+    mes = mes.split(' ')
+    i = 0
+    while i < len(mes):
+        line = []
+        for j in range(0, n):
+            line.append(int(mes[i]) if i < len(mes) else 0)
+            i += 1
+        res.append(line)
+    return res
+
+def take_decrypted(mes, n):
+    res = ""
+    i = 0
+    for i in range(0, len(mes)):
+        for j in range(0, n):
+            if mes[i][j]:
+                res += chr(mes[i][j])
+    return res
+
+try:
+    if len(argv) != 4:
+        exit(84)
+    mode = int(argv[3])
+    key, n = take_key(argv[2])
+    if mode == 0:
+        dis_key(key, n, mode)
+        mes = take_mes(argv[1], n)
+        res = matrix_mul(mes, key, n)
+        dis_crypted(res, n)
+    elif mode == 1:
+        key = inv_key(key, n)
+        dis_key(key, n, mode)
+        mes = take_crypted(argv[1], n)
+        mes = matrix_mul(mes, key, n)
+        res = take_decrypted(mes, n)
+        print("\nDecrypted message:\n" + res)
+    else:
+        exit(84)
+except:
+    print("USAGE")
+    print("    ./103cipher message key flag\n")
+    print("DESCRIPTION")
+    print("    message     a message, made of ASCII characters")
+    print("    key         the encryption key, made of ASCII characters")
+    print("    flag        0 for the message to be encrypted, 1 to be decrypted")
+    exit(84)
+exit(0)

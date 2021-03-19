@@ -1,0 +1,35 @@
+#!/usr/bin/env python3
+from sys import argv
+import sys
+import math
+
+def v1(n, k):
+    res = int(n)
+    k = float(k)
+    for i in range(100):
+        print("{:} {:.2f}".format(i + 1, res))
+        res = k * res * ((1000 - res) / 1000)
+
+def v2_2(n, k, i0, i1):
+    res = int(n)
+    for i in range(i0):
+        res = k * res * ((1000 - res) / 1000)
+    for i in range(i1 - i0 + 1):
+        print("{:.2f} {:.2f}".format(k, res))
+        res = k * res * ((1000 - res) / 1000)
+
+def v2(n, i0, i1):
+    k = 1.00
+    for i in range(300):
+        v2_2(n, k, int(i0), int(i1))
+        k = k + 0.01
+
+try:
+    if (len(argv) == 3 and float(argv[2]) >= 1 and float(argv[2]) <= 4):
+        v1(argv[1], argv[2])
+    elif (len(argv) == 4):
+        v2(argv[1], argv[2], argv[3])
+    else:
+        sys.exit(0)
+except :
+    sys.exit(84)
